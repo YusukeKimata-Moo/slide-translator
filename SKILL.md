@@ -24,9 +24,15 @@ python scripts/extract_japanese.py <input.pptx> <work_dir> [--exclude-slides 1 2
 - Prints a human-readable summary with context (preceding/following English text)
 - Use `--exclude-slides` to skip title slides or other non-translatable slides
 
-### Step 2: Create translations JSON
+### Step 2: Draft and Check Translations
 
-Read the extracted summary and create `translations.json` (flat mapping):
+Do NOT create the JSON immediately. First, draft the English translations based on the extracted text and **evaluate** if each translation sounds like a natural, concise expression appropriate for an English molecular biology research presentation.
+
+- Does it sound like a literal word-for-word translation? (If yes, rephrase it to be more natural)
+- Is it too wordy for a presentation slide? (If yes, make it concise)
+- Are the structural line breaks preserved properly?
+
+After confirming the quality of the drafted translations, create `translations.json` (flat mapping):
 
 ```json
 {
