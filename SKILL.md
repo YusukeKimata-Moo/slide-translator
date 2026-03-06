@@ -41,6 +41,7 @@ Read the extracted summary and create `translations.json` (flat mapping):
 - **Line breaks (`\n`):** The extracted text may contain `\n` representing manual line breaks (`<a:br/>`) in the text box. Since the source text is Japanese, judge whether a line break is necessary based on the meaning and context of the **Japanese original**.
   - If the `\n` is just for visual wrapping within a single continuous phrase in Japanese (e.g., `"分裂前には\n核よりも上に移動"` — one continuous thought split for box width), **you may remove the `\n` or reposition it** to fit the English translation naturally (e.g., `"Moved above the nucleus\nbefore division"` or `"Moved above the nucleus before division"`).
   - If the `\n` separates structurally distinct lines in Japanese (e.g., `"微小管\n核"` — two separate items listed), **keep the `\n`** in the English translation to preserve the layout (e.g., `"Microtubules\nNucleus"`).
+- **Capitalization after removed line breaks:** When you remove a `\n` from the Japanese source, the word that followed the line break should **NOT** be capitalized unless it is a proper noun or the start of a sentence. The apply script preserves text exactly as written in translations.json — do NOT capitalize mid-sentence words.
 - Use standard nomenclature for proteins, genes, and organelles
 - Keep gene/protein names (e.g., Gene A, Protein B) as-is — they are already English
 - Use appropriate abbreviations: WT (wild type), GFP (Green Fluorescent Protein), etc.
