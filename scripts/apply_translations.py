@@ -123,27 +123,53 @@ def apply_paragraph_translations(content, translations):
         new_parts = []
         
         if isinstance(translated, list):
-            # 1-to-1 mapping mode: `translated` is a list of strings matching `text_runs`
-            # If counts don't match, fallback safely or just zip them.
-            run_idx = 0
-            for r in runs:
-                if r['type'] == 'br':
-                    new_parts.append('<a:br/>')
-                else:
-                    if run_idx < len(translated):
-                        chunk = translated[run_idx]
-                    else:
-                        chunk = ""
-                    run_idx += 1
+            if len(translated) > 0 and isinstance(translated[0], dict):
+                # Explicit mapping mode: [{'en': '...', 'src': '...'}, ...]
+                for chunk in translated:
+                    en_text = chunk.get("en", "")
+                    src_text = chunk.get("src", "")
                     
-                    if chunk:
-                        lines = chunk.split('\n')
-                        for i, line in enumerate(lines):
-                            if i > 0:
-                                new_parts.append('<a:br/>')
-                            if line:
-                                new_rPr = update_rpr_to_arial_en(r['rpr'] or default_rpr)
-                                new_parts.append(f'<a:r>\n              {new_rPr}\n              <a:t>{escape_xml(line)}</a:t>\n            </a:r>')
+                    rpr = default_rpr
+                    if src_text and src_text in raw_text:
+                        idx = raw_text.find(src_text)
+                        align_idx = idx - strip_offset
+                        center = int(align_idx + len(src_text) / 2.0)
+                        if rpr_aligned and 0 <= center < len(rpr_aligned):
+                            rpr = rpr_aligned[center]
+                        elif rpr_aligned and center >= len(rpr_aligned):
+                            rpr = rpr_aligned[-1]
+                        elif rpr_aligned and center < 0:
+                            rpr = rpr_aligned[0]
+                    
+                    lines = en_text.split('\n')
+                    for i, line in enumerate(lines):
+                        if i > 0:
+                            new_parts.append('<a:br/>')
+                        if line:
+                            new_rPr = update_rpr_to_arial_en(rpr)
+                            new_parts.append(f'<a:r>\n              {new_rPr}\n              <a:t>{escape_xml(line)}</a:t>\n            </a:r>')
+            else:
+                # 1-to-1 mapping mode: `translated` is a list of strings matching `text_runs`
+                # If counts don't match, fallback safely or just zip them.
+                run_idx = 0
+                for r in runs:
+                    if r['type'] == 'br':
+                        new_parts.append('<a:br/>')
+                    else:
+                        if run_idx < len(translated):
+                            chunk = translated[run_idx]
+                        else:
+                            chunk = ""
+                        run_idx += 1
+                        
+                        if chunk:
+                            lines = chunk.split('\n')
+                            for i, line in enumerate(lines):
+                                if i > 0:
+                                    new_parts.append('<a:br/>')
+                                if line:
+                                    new_rPr = update_rpr_to_arial_en(r['rpr'] or default_rpr)
+                                    new_parts.append(f'<a:r>\n              {new_rPr}\n              <a:t>{escape_xml(line)}</a:t>\n            </a:r>')
         else:
             # Proportional mapping mode with word-boundary snapping
             translated_flat = translated.replace('\n', '')

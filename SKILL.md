@@ -41,6 +41,22 @@ After confirming the quality of the drafted translations, create `translations.j
 }
 ```
 
+#### Preserving text color for specific words
+
+If a Japanese sentence contains words with specific colors and their order changes in English, you can explicitly map the original Japanese word (`src`) to the translated English word (`en`) using an array of objects. This ensures the English word inherits the correct color from the original Japanese word.
+
+```json
+{
+  "微小管重合阻害時の色素体": [
+    { "en": "Plastids under ", "src": "色素体" },
+    { "en": "microtubule", "src": "微小管" },
+    { "en": " polymerization inhibition", "src": "重合阻害時" }
+  ]
+}
+```
+
+_Note: Only use this explicit array format when preserving specific colors is necessary. For normal text, use the simple string format._
+
 #### Translation guidelines (molecular biology)
 
 - **Do NOT use literal word-for-word translations.** Instead, use natural, concise, and academic English expressions appropriate for molecular biology research presentations.
