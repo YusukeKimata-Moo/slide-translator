@@ -38,6 +38,9 @@ Read the extracted summary and create `translations.json` (flat mapping):
 #### Translation guidelines (molecular biology)
 
 - **Do NOT use literal word-for-word translations.** Instead, use natural, concise, and academic English expressions appropriate for molecular biology research presentations.
+- **Line breaks (`\n`):** The extracted text may contain `\n` representing manual line breaks (`<a:br/>`) in the text box.
+  - If the `\n` is just for visual wrapping of a single continuous sentence (e.g., `"Vacuoles\nexpanded"`), **you may remove the `\n` or change its position** to fit the flow of the English translation cleanly.
+  - If the `\n` represents a genuine structural break, such as a bullet point or a distinct new line of thought, **you should keep the `\n`** in the English translation to preserve the layout.
 - Use standard nomenclature for proteins, genes, and organelles
 - Keep gene/protein names (e.g., Gene A, Protein B) as-is — they are already English
 - Use appropriate abbreviations: WT (wild type), GFP (Green Fluorescent Protein), etc.
