@@ -11,8 +11,25 @@
 
 ## 前提条件
 
-このスキルは裏側で`pptxスキル` (https://github.com/anthropics/skills/tree/main/skills/pptx) を利用してファイルの展開・再パッケージ化を行っています。
+このスキルは裏側で[`pptx`スキル](https://github.com/anthropics/skills/tree/main/skills/pptx)を利用してファイルの展開・再パッケージ化を行っています。
 利用する環境に`pptx`スキルがインストールされていることを確認してください。
+
+## インストール
+
+Antigravity（または互換性のあるエージェント環境）のスキルディレクトリにクローンしてインストールします。
+
+```bash
+# スキルディレクトリに移動
+cd ~/.agents/skills
+
+# リポジトリをクローン
+git clone https://github.com/YusukeKimata-Moo/slide-translator.git
+
+# 依存スキル (pptx) がない場合はあわせてインストール
+git clone https://github.com/anthropics/skills.git temp-skills
+cp -r temp-skills/skills/pptx ./
+rm -rf temp-skills
+```
 
 ## 使い方
 
