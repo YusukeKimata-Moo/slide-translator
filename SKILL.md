@@ -38,9 +38,9 @@ Read the extracted summary and create `translations.json` (flat mapping):
 #### Translation guidelines (molecular biology)
 
 - **Do NOT use literal word-for-word translations.** Instead, use natural, concise, and academic English expressions appropriate for molecular biology research presentations.
-- **Line breaks (`\n`):** The extracted text may contain `\n` representing manual line breaks (`<a:br/>`) in the text box.
-  - If the `\n` is just for visual wrapping of a single continuous sentence (e.g., `"Vacuoles\nexpanded"`), **you may remove the `\n` or change its position** to fit the flow of the English translation cleanly.
-  - If the `\n` represents a genuine structural break, such as a bullet point or a distinct new line of thought, **you should keep the `\n`** in the English translation to preserve the layout.
+- **Line breaks (`\n`):** The extracted text may contain `\n` representing manual line breaks (`<a:br/>`) in the text box. Since the source text is Japanese, judge whether a line break is necessary based on the meaning and context of the **Japanese original**.
+  - If the `\n` is just for visual wrapping within a single continuous phrase in Japanese (e.g., `"分裂前には\n核よりも上に移動"` — one continuous thought split for box width), **you may remove the `\n` or reposition it** to fit the English translation naturally (e.g., `"Moved above the nucleus\nbefore division"` or `"Moved above the nucleus before division"`).
+  - If the `\n` separates structurally distinct lines in Japanese (e.g., `"微小管\n核"` — two separate items listed), **keep the `\n`** in the English translation to preserve the layout (e.g., `"Microtubules\nNucleus"`).
 - Use standard nomenclature for proteins, genes, and organelles
 - Keep gene/protein names (e.g., Gene A, Protein B) as-is — they are already English
 - Use appropriate abbreviations: WT (wild type), GFP (Green Fluorescent Protein), etc.
