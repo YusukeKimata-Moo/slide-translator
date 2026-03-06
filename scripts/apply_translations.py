@@ -8,9 +8,10 @@ import sys, os, re, json, pathlib, subprocess, argparse
 JP_RE = re.compile(r'[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\u4e00-\u9fff\uff00-\uffef]')
 ARIAL = 'typeface="Arial" panose="020B0604020202020204" pitchFamily="34" charset="0"'
 
+TXBODY_RE = re.compile(r'(<p:txBody>)(.*?)(</p:txBody>)', re.DOTALL)
 PARA_RE = re.compile(r'(<a:p[^>]*>)(.*?)(</a:p>)', re.DOTALL)
 AT_RE = re.compile(r'<a:t[^>]*>([^<]*)</a:t>')
-RUN_BR_RE = re.compile(r'(<a:r>.*?</a:r>|<a:br[^>]*/>)', re.DOTALL)
+RUN_BR_RE = re.compile(r'(<a:r>.*?</a:r>|<a:br[^>]*/\s*>)', re.DOTALL)
 
 def find_pptx_scripts():
     sd = pathlib.Path(__file__).resolve().parent.parent
@@ -42,7 +43,8 @@ def update_rpr_to_arial_en(rpr):
     return rpr
 
 def apply_paragraph_translations(content, translations):
-    """Replace entire paragraphs if their extracted text matches translations.json"""
+    """Replace entire paragraphs if their extracted text matches translations.json.
+    Only processes paragraphs inside <p:txBody> blocks to avoid corrupting other XML."""
     
     def replace_para(match):
         p_open = match.group(1)
@@ -74,7 +76,7 @@ def apply_paragraph_translations(content, translations):
                 endPr_str = endPr_str.replace('lang="ja-JP"', 'lang="en-US"')
             
             # Extract rPr template from the first run
-            rPr_match = re.search(r'(<a:rPr.*?</a:rPr>|<a:rPr[^>]*/>)', p_inner, re.DOTALL)
+            rPr_match = re.search(r'(<a:rPr.*?</a:rPr>|<a:rPr[^>]*/\s*>)', p_inner, re.DOTALL)
             rPr_str = rPr_match.group(1) if rPr_match else '<a:rPr lang="en-US" dirty="0"/>'
             
             new_rPr = update_rpr_to_arial_en(rPr_str)
@@ -93,7 +95,14 @@ def apply_paragraph_translations(content, translations):
             
         return match.group(0)
 
-    return PARA_RE.sub(replace_para, content)
+    def replace_txbody(tb_match):
+        tb_open = tb_match.group(1)
+        tb_inner = tb_match.group(2)
+        tb_close = tb_match.group(3)
+        tb_inner_replaced = PARA_RE.sub(replace_para, tb_inner)
+        return tb_open + tb_inner_replaced + tb_close
+
+    return TXBODY_RE.sub(replace_txbody, content)
 
 def main():
     p = argparse.ArgumentParser()
