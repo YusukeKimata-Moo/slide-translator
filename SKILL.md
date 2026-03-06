@@ -37,13 +37,14 @@ Read the extracted summary and create `translations.json` (flat mapping):
 
 #### Translation guidelines (molecular biology)
 
+- **Do NOT use literal word-for-word translations.** Instead, use natural, concise, and academic English expressions appropriate for molecular biology research presentations.
 - Use standard nomenclature for proteins, genes, and organelles
-- Keep gene/protein names (e.g., GeneA, ProteinB) as-is — they are already English
-- Use appropriate abbreviations: wt (wild type), MT (microtubule), etc.
+- Keep gene/protein names (e.g., Gene A, Protein B) as-is — they are already English
+- Use appropriate abbreviations: WT (wild type), GFP (Green Fluorescent Protein), etc.
 - Species names should not be italicized in the JSON — PowerPoint handles formatting
 
 > [!IMPORTANT]
-> **Context-dependent translation**: When the extract output shows `(after: GeneA)` for text like `は高発現していた`, **do NOT repeat the preceding English text** in the translation. Translate only the Japanese portion: `was highly expressed`.
+> **Context-dependent translation**: When the extract output shows `(after: Gene A)` for text like `は高発現していた`, **do NOT repeat the preceding English text** in the translation. Translate only the Japanese portion: `was highly expressed`.
 
 ### Step 3: Apply translations and repack (1 command)
 
