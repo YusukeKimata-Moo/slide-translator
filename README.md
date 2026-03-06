@@ -11,7 +11,7 @@
 
 ## 前提条件
 
-このスキルは裏側で`pptxスキル` (https://github.com/anthropics/skills/tree/main/skills/pptx)を利用してファイルの展開・再パッケージ化を行っています。
+このスキルは裏側で`pptxスキル` (https://github.com/anthropics/skills/tree/main/skills/pptx) を利用してファイルの展開・再パッケージ化を行っています。
 利用する環境に`pptx`スキルがインストールされていることを確認してください。
 
 ## 使い方
