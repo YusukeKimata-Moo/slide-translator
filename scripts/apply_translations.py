@@ -230,6 +230,28 @@ def apply_paragraph_translations(content, translations):
     return TXBODY_RE.sub(replace_txbody, content)
 
 
+def fix_broken_rels(work_dir):
+    """Remove broken Relationship entries (Target='NULL' or empty) from .rels files.
+    These exist in some source PPTXs and cause PowerPoint repair dialogs."""
+    import glob
+    rels_pattern = os.path.join(work_dir, '**', '*.rels')
+    fixed = 0
+    for rels_path in glob.glob(rels_pattern, recursive=True):
+        with open(rels_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        original = content
+        # Remove Relationship elements with Target="NULL" or Target=""
+        content = re.sub(r'<Relationship[^>]*Target="NULL"[^>]*/>\s*', '', content)
+        content = re.sub(r'<Relationship[^>]*Target=""[^>]*/>\s*', '', content)
+        if content != original:
+            with open(rels_path, 'w', encoding='utf-8') as f:
+                f.write(content)
+            fixed += 1
+            print(f'Fixed broken rels: {os.path.relpath(rels_path, work_dir)}')
+    if fixed:
+        print(f'Fixed {fixed} .rels file(s) with broken relationships')
+
+
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("work_dir")
@@ -261,6 +283,10 @@ def main():
             print(f'Updated: {f}')
 
     print(f"\nModified {len(modified)} slides")
+
+    # Fix broken relationships (Target="NULL" or Target="") in .rels files
+    # These exist in some source PPTXs and cause PowerPoint repair dialogs
+    fix_broken_rels(a.work_dir)
 
     clean_py, pack_py = find_pptx_scripts()
     print("Cleaning...")
