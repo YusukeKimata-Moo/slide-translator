@@ -16,16 +16,34 @@
 
 ## インストール
 
-Antigravity（または互換性のあるエージェント環境）のスキルディレクトリにクローンしてインストールします。
+利用するAIコーディングエージェントに応じて、対応するスキルディレクトリにクローンしてください。
+
+### Antigravity
 
 ```bash
-# スキルディレクトリに移動
-cd ~/.agents/skills
-
-# リポジトリをクローン
+cd ~/.gemini/antigravity/skills
 git clone https://github.com/YusukeKimata-Moo/slide-translator.git
+```
 
-# 依存スキル (pptx) がない場合はあわせてインストール
+### Claude Code
+
+```bash
+cd ~/.claude/skills
+git clone https://github.com/YusukeKimata-Moo/slide-translator.git
+```
+
+### Codex CLI
+
+```bash
+cd ~/.codex/skills
+git clone https://github.com/YusukeKimata-Moo/slide-translator.git
+```
+
+### 依存スキルのインストール
+
+本スキルは `pptx` スキルに依存しています。未インストールの場合は、同じスキルディレクトリに追加してください。
+
+```bash
 git clone https://github.com/anthropics/skills.git temp-skills
 cp -r temp-skills/skills/pptx ./
 rm -rf temp-skills
