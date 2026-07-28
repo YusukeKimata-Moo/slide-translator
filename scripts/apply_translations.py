@@ -3,7 +3,7 @@ Usage: python apply_translations.py <work_dir> <translations.json> <output.pptx>
 
 translations.json format: {"Japanese text": "English translation", ...}
 """
-import sys, os, re, json, pathlib, subprocess, argparse
+import sys, os, re, json, pathlib, subprocess, argparse, shutil
 
 JP_RE = re.compile(r'[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\u4e00-\u9fff\uff00-\uffef]')
 ARIAL = 'typeface="Arial" panose="020B0604020202020204" pitchFamily="34" charset="0"'
@@ -230,6 +230,22 @@ def apply_paragraph_translations(content, translations):
     return TXBODY_RE.sub(replace_txbody, content)
 
 
+def strip_stray_root_entries(work_dir):
+    """Remove any file/dir at the OOXML package root that isn't part of a valid
+    package (e.g. japanese_texts.json, translations.json, debug files left in
+    work_dir). pack.py zips work_dir wholesale, so stray root entries end up as
+    loose zip-root files and PowerPoint reports the package as corrupt."""
+    allowed_files = {"[Content_Types].xml"}
+    allowed_dirs = {"_rels", "docProps", "ppt", "customXml"}
+    for entry in pathlib.Path(work_dir).iterdir():
+        if entry.is_dir():
+            if entry.name not in allowed_dirs:
+                shutil.rmtree(entry)
+        else:
+            if entry.name not in allowed_files:
+                entry.unlink()
+
+
 def fix_broken_rels(work_dir):
     """Remove broken Relationship entries (Target='NULL' or empty) from .rels files.
     These exist in some source PPTXs and cause PowerPoint repair dialogs."""
@@ -291,6 +307,7 @@ def main():
     clean_py, pack_py = find_pptx_scripts()
     print("Cleaning...")
     subprocess.run([sys.executable, str(clean_py), a.work_dir], check=True)
+    strip_stray_root_entries(a.work_dir)
     print("Packing...")
     subprocess.run([sys.executable, str(pack_py), a.work_dir, a.output_pptx,
                     "--original", a.original, "--validate", "false"], check=True)
