@@ -1,19 +1,21 @@
 ---
 name: slide-translator
-description: "Translate Japanese text in molecular biology research presentation slides (.pptx) to English. Triggers on: 'translate slides', 'translate presentation', 'スライド英訳', 'プレゼン翻訳', 'スライドの翻訳', or any request to translate a PPTX from Japanese to English for scientific presentations."
+description: "Translate Japanese molecular biology research slides in a local .pptx file into concise academic English, preserving scientific names, meaningful line breaks, and text-color mappings. Use for Japanese-to-English slide translation, not manuscript translation, English proofreading, or creating a new deck."
 ---
 
 # Slide Translator Skill
 
-Translates Japanese text in PPTX slides to English suitable for molecular biology research presentations. Forces Arial font on all translated text. Designed for **2 commands only** to minimize token consumption.
+Translates Japanese text in PPTX slides to English suitable for molecular biology research presentations. Forces Arial font on translated runs while preserving their other run formatting.
 
 ## Prerequisites
 
-- **pptx skill** must be installed (uses its unpack/clean/pack scripts)
+- **pptx skill** must be installed alongside this directory: scripts resolve `../pptx/scripts/` from the resolved skill path and use its unpack/clean/pack scripts.
+- Use the host-configured Python executable; run examples from this skill root or resolve the script paths explicitly.
+- Use a dedicated disposable `<work_dir>` for this run. Keep the original, output, and `translations.json` outside it: the apply script deletes non-package entries at its root before packing.
 
 ## Workflow
 
-### Step 1: Extract Japanese text (1 command)
+### Step 1: Extract Japanese text
 
 ```bash
 python scripts/extract_japanese.py <input.pptx> <work_dir> [--exclude-slides 1 2 ...]
@@ -21,8 +23,9 @@ python scripts/extract_japanese.py <input.pptx> <work_dir> [--exclude-slides 1 2
 
 - Unpacks the PPTX and scans all slides for Japanese text
 - Saves structured data to `<work_dir>/japanese_texts.json`
-- Prints a human-readable summary with context (preceding/following English text)
-- Use `--exclude-slides` to skip title slides or other non-translatable slides
+- Prints whole-paragraph text, including adjacent English runs and manual line breaks
+- `--exclude-slides` skips extraction for the numbered `slideN.xml` files, not necessarily presentation-order slide numbers. Check the slide mapping first.
+- Apply has no exclusion filter: a translation key is replaced wherever it matches across slides. Before applying, check for keys also present on excluded slides or needing different translations in different contexts. For such collisions, use the `pptx` skill's targeted XML editing workflow on only the intended slides instead.
 
 ### Step 2: Draft and Check Translations
 
@@ -32,7 +35,7 @@ Do NOT create the JSON immediately. First, draft the English translations based 
 - Is it too wordy for a presentation slide? (If yes, make it concise)
 - Are the structural line breaks preserved properly?
 
-After confirming the quality of the drafted translations, create `translations.json` (flat mapping):
+After confirming the quality of the drafted translations, create UTF-8 `translations.json` outside `<work_dir>` (flat mapping). Copy keys exactly from `japanese_texts.json`, including embedded English and `\n`; translate the complete keyed paragraph:
 
 ```json
 {
@@ -70,9 +73,9 @@ _Note: Only use this explicit array format when preserving specific colors is ne
 - Species names should not be italicized in the JSON — PowerPoint handles formatting
 
 > [!IMPORTANT]
-> **Context-dependent translation**: When the extract output shows `(after: Gene A)` for text like `は高発現していた`, **do NOT repeat the preceding English text** in the translation. Translate only the Japanese portion: `was highly expressed`.
+> **Translation unit**: The current extractor includes English within the same paragraph in the key. For `Gene Aは高発現していた`, output `Gene A was highly expressed`; omitting `Gene A` would delete it. Do not add context from a separate paragraph or text box that is not part of the key.
 
-### Step 3: Apply translations and repack (1 command)
+### Step 3: Apply translations and repack
 
 ```bash
 python scripts/apply_translations.py <work_dir> translations.json <output.pptx> --original <input.pptx>
@@ -82,19 +85,21 @@ This single command:
 
 1. Replaces Japanese text with English translations
 2. Changes `lang="ja-JP"` → `lang="en-US"` on translated runs
-3. **Forces Arial font** on all translated slides (replaces all Japanese fonts)
+3. **Forces Arial font** on translated runs (does not replace every font on the slide)
 4. Cleans orphaned files and repacks to PPTX
 
-### Step 4: User Review
+### Step 4: Verify and Request User Review
 
-Ask the user to review the generated output file to ensure the translation is acceptable and the layout is well-maintained.
+Compare output text with the mapping: check missing replacements, retained English, scientific names, meaningful line breaks, and excluded slides. The apply script handles `<p:txBody>` paragraphs; text extracted from other structures, such as table cells, can remain unchanged. Use targeted PPTX editing for those cases rather than reporting complete translation.
 
-### Step 5: Cleanup (1 command)
+Render the output with the `pptx` skill's QA workflow and inspect translated slides for overflow, color mapping, and layout changes. Packing uses `--validate false` for external-video false positives, so successful packing is not proof of schema or visual validity. Report any unavailable checks and ask the user to review the output.
 
-Once the user approves the result, delete the temporary unpacked directory to save storage space:
+### Step 5: Cleanup
+
+Only after the user approves the result and cleanup, verify that `<work_dir>` resolves to this run's disposable unpacked directory, then delete that exact directory:
 
 ```powershell
-Remove-Item -Recurse -Force <work_dir>
+Remove-Item -LiteralPath <work_dir> -Recurse -Force
 ```
 
 ## Notes
